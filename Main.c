@@ -1,5 +1,8 @@
+#include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+
 
 
 int point_card(char card[]){
@@ -8,7 +11,17 @@ int point_card(char card[]){
 	}else if(card[1]>='1' && card[1]<='9'){
 		return card[1]-'0';
 	}else{
-		return card[1]-'A'+1;
+		return card[1]-'A'+10;
+	}
+}
+
+int ant_ou_prox(char comp,char card){
+	if(card==comp+1||(comp=='9'&&card=='A')){
+		return 1;
+	}else if(card==comp-1||(comp=='A'&&card=='9')){
+		return -1;
+	}else{
+		return 0;
 	}
 }
 
@@ -117,14 +130,21 @@ void game(int mode,int num_jogs, char Root_deck[]){
 	char sequencias[32][30];
 	char deck[214],ask[4],card[8];
 	int jogou[num_jogs];
-	int i,j,counter,jog_atual,num_tri,num_seq,ponts,turn;
+	int i,j,counter,jog_atual,num_tri,num_seq,points,turn,pos;
 	strncpy(deck,Root_deck,214);
 	for(i=0;i<28;i+=2){
 		for(j=0;j<num_jogs;j++){
-			hand[j][i]=deck[0];
-			hand[j][i+1]=deck[1];
+			if(mode){
+				pos=0;
+			}else{
+				pos=(rand()%strlen(deck));
+				pos/=2;
+				pos*=2;
+			}
+			hand[j][i]=deck[pos];
+			hand[j][i+1]=deck[pos+1];
 			hand[j][i+2]='\0';
-			remove_pos(deck,0);
+			remove_pos(deck,pos);
 		}
 	}
 	for(i=0;i<16;i++){
@@ -137,19 +157,97 @@ void game(int mode,int num_jogs, char Root_deck[]){
 	jog_atual=0;
 	num_seq=0;
 	num_tri=0;
+	points=0;
 	turn=0;
 	while(1){
 		print_game(hand[jog_atual],trincas,sequencias);
 		printf("\n>Turno do jogador %d\n\n",jog_atual+1);
 		printf("                     O que fazer:\n");     
-		printf("(0)Criar uma trinca       |   (1)Cortar uma trinca\n");
-		printf("(2)Criar uma sequencia    |   (3)Substituir numa trinca\n");
-		printf("(4)Cortar uma sequencia   |   (5)Dividir uma sequencia\n");
+		printf("(0)Criar uma sequencia    |   (1)Criar uma trinca\n");
+		printf("(2)Cortar uma sequencia   |   (3)Cortar uma quadra\n");
+		printf("(4)Dividir uma sequencia  |   (5)Substituir numa trinca\n");
 		printf("(6)Deslocar sequencia     |   (7)Substituir um coringa\n");
 		printf("(8)Comprar carta          |   (9)Terminar turno\n");
 		
 		fgets(ask,3,stdin);
 		if(ask[0]=='0'){
+			counter=0;
+			while(1){
+				printf(">Sequencia:");
+				print_list(sequencias[num_seq]);
+				printf(">Sua mao: ");
+				print_list(hand[jog_atual]);
+				printf("\n                 O que fazer:\n");
+				printf("(1)Adicionar carta    |  (2)Remover carta\n");
+				printf("(3)Finalizar jogada   |  (4)Cancelar jogada\n");
+				fgets(ask,3,stdin);
+				if(ask[0]=='1'&&counter<13){
+					i=1;
+					while(i){
+						printf(">Sequencia:");
+						print_list(sequencias[num_seq]);
+						printf(">Sua mao:");
+						print_list(hand[jog_atual]);
+						printf("\nDigite '0' para cancelar.\n");
+						printf("Digite a carta para adicionar: ");
+						fgets(card,4,stdin);
+						if(card[0]=='0'){
+							i=0;
+						}else if(find_card(hand[jog_atual],card)!=-1){
+							if(counter==0||ant_ou_prox(sequencias[num_seq][1],card[1])==-1){
+								add_in_pos(sequencias[num_seq],card,0);
+								remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
+								counter++;
+								i=0;
+							}else if(ant_ou_prox(sequencias[num_seq][2*counter-1],card[1])==1){
+								add_in_pos(sequencias[num_seq],card,2*counter);
+								remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
+								counter++;
+								i=0;
+							}else{
+								printf("\n\n\n###Carta Invalida###\n");
+							}
+						}else{
+							printf("\n\n\n###Carta Invalida###\n");
+						}
+					}
+				}else if(ask[0]=='2'&&counter>0){
+					i=1;
+					while(i){
+						printf(">Sequencia:\n");
+						print_list(sequencias[num_seq]);
+						printf("Que carta remover: ");
+						fgets(card,4,stdin);
+						j=find_card(sequencias[num_seq],card);
+						if(j!=-1){
+							remove_pos(sequencias[num_seq],j);
+							add_in_pos(hand[jog_atual],card,0);
+							i=0;
+						}else{
+							printf("\n\n\n###Carta Invalida###\n");
+						}
+					}
+					counter--;
+				}else if(ask[0]=='3'&&counter>=3){
+					for(i=0;i<counter;i++){
+						strncpy(card,sequencias[num_seq]+2*i,2);
+						points+=point_card(card);
+					}
+					printf("%d\n",points);
+					num_seq++;
+					break;
+				}else if(ask[0]=='4'){
+					for(i=0;i<counter;i++){
+						add_in_pos(hand[jog_atual],sequencias[num_seq],0);
+						remove_pos(sequencias[num_seq],0);
+					}
+					break;
+				}else{
+					printf("###Comando Invalido###\n");
+				}
+
+			}
+		}else if(ask[0]=='1'){
 			counter=0;
 			while(1){
 				printf(">Trinca:");
@@ -203,8 +301,10 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							printf("###Comando Invalido###\n");
 						}
 					}
-					remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
-					counter++;
+					if(card[0]!='0'){
+						remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
+						counter++;
+					}
 				}else if(ask[0]=='2'&&counter>0){
 					i=1;
 					while(i){
@@ -223,18 +323,24 @@ void game(int mode,int num_jogs, char Root_deck[]){
 					}
 					counter--;
 				}else if(ask[0]=='3'&&counter>=3){
+					for(i=0;i<counter;i++){
+						strncpy(card,trincas[num_tri]+2*i,2);
+						points+=point_card(card);
+					}
+					printf("%d\n",points);
 					num_tri++;
 					break;
 				}else if(ask[0]=='4'){
-					trincas[num_tri][0]='\0';
+					for(i=0;i<counter;i++){
+						add_in_pos(hand[jog_atual],trincas[num_tri],0);
+						remove_pos(trincas[num_tri],0);
+					}
 					break;
 				}else{
 					printf("###Comando Invalido###\n");
 				}
 
 			}
-		}else if(ask[0]=='1'){
-			
 		}else if(ask[0]=='2'){
 
 		}else if(ask[0]=='3'){
@@ -247,17 +353,24 @@ void game(int mode,int num_jogs, char Root_deck[]){
 
 		}else if(ask[0]=='7'){
 			
-		}else if(ask[0]=='8'){
-			
-		}else if(ask[0]=='9'&&(turn!=0||ponts>=30)){
-			ponts=0;
+		}else if(ask[0]=='8'&&points==0){
+			if(mode){
+				pos=0;
+			}else{
+				pos=(rand()%strlen(deck));
+				pos/=2;
+				pos*=2;
+			}
+			add_in_pos(deck+pos,hand[j],0);
+			remove_pos(deck,pos);
+		}else if(ask[0]=='9'&&(jogou[i]!=0||points>=30)){
+			points=0;
+			jogou[i]=1;
 			i++;
 			if(i==num_jogs){
 				turn++;
 				i%=num_jogs;
 			}
-		}else if(ask[0]=='0'){
-			return;
 		}else{
 			printf("###Comando Invalido###\n");
 		}
@@ -268,6 +381,7 @@ int main(){
 	int mode,num_jogs,i;
 	char ask[4],deck[214];
 	strncpy(deck,"!1@1#1$1!2@2#2$2!3@3#3$3!4@4#4$4!5@5#5$5!6@6#6$6!7@7#7$7!8@8#8$8!9@9#9$9!A@A#A$A!B@B#B$B!C@C#C$C!D@D#D$D!1@1#1$1!2@2#2$2!3@3#3$3!4@4#4$4!5@5#5$5!6@6#6$6!7@7#7$7!8@8#8$8!9@9#9$9!A@A#A$A!B@B#B$B!C@C#C$C!D@D#D$D****\0",214);
+	srand(time(NULL));
 	ask[0]='0';
 	num_jogs=-1;
 	while(i){
