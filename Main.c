@@ -5,21 +5,25 @@
 
 
 
-int point_card(char card[]){
-	if(card[1]=='*'){
+int point_card(char card){
+	if(card=='*'){
 		return 20;
-	}else if(card[1]>='1' && card[1]<='9'){
-		return card[1]-'0';
+	}else if(card>='1' && card<='9'){
+		return card-'0';
 	}else{
-		return card[1]-'A'+10;
+		return card-'A'+10;
 	}
 }
 
-int ant_ou_prox(char comp,char card){
+int dist(char comp,char card){
 	if(card==comp+1||(comp=='9'&&card=='A')){
 		return 1;
+	}else if(card==comp+2||(comp=='8'&&card=='A')||(comp=='9'&&comp=='B')){
+		return 2;
 	}else if(card==comp-1||(comp=='A'&&card=='9')){
 		return -1;
+	}else if(card==comp-2||(comp=='A'&&card=='8')||(comp=='B'&&comp=='9')){
+		return -2;
 	}else{
 		return 0;
 	}
@@ -109,16 +113,16 @@ void add_in_pos(char deck[],char card[],int pos){
 	deck[pos+1]=card[1];
 }
 
-void print_game(char hand[],char trincas[][10],char sequencias[][30]){
+void print_game(char hand[],char tri[][10],char seq[][30]){
 	int i;
 	printf("Mesa:\n");
 	printf(">Trincas\n");
-	for(i=0;trincas[i][0]!='\0';i++){
-		print_list(trincas[i]);
+	for(i=0;tri[i][0]!='\0';i++){
+		print_list(tri[i]);
 	}
 	printf(">Sequencias\n");
-	for(i=0;sequencias[i][0]!='\0';i++){
-		print_list(sequencias[i]);
+	for(i=0;seq[i][0]!='\0';i++){
+		print_list(seq[i]);
 	}
 	printf("Sua mao:\n");
 	print_list(hand);
@@ -126,15 +130,15 @@ void print_game(char hand[],char trincas[][10],char sequencias[][30]){
 
 void game(int mode,int num_jogs, char Root_deck[]){
 	char hand[num_jogs][214];
-	char trincas[32][10];
-	char sequencias[32][30];
+	char tri[32][10];
+	char seq[32][30];
 	char deck[214],ask[4],card[8];
 	int jogou[num_jogs];
-	int i,j,counter,jog_atual,num_tri,num_seq,points,turn,pos;
+	int i,j,counter,jog_atual,num_tri,num_seq,points,pos,temp_tri,temp_seq;
 	strncpy(deck,Root_deck,214);
 	for(i=0;i<28;i+=2){
 		for(j=0;j<num_jogs;j++){
-			if(mode){
+			if(mode==1){
 				pos=0;
 			}else{
 				pos=(rand()%strlen(deck));
@@ -148,8 +152,8 @@ void game(int mode,int num_jogs, char Root_deck[]){
 		}
 	}
 	for(i=0;i<16;i++){
-		trincas[i][0]='\0';
-		sequencias[i][0]='\0';
+		tri[i][0]='\0';
+		seq[i][0]='\0';
 	}
 	for(j=0;j<num_jogs;j++){
 		jogou[j]=0;
@@ -158,23 +162,83 @@ void game(int mode,int num_jogs, char Root_deck[]){
 	num_seq=0;
 	num_tri=0;
 	points=0;
-	turn=0;
 	while(1){
-		print_game(hand[jog_atual],trincas,sequencias);
+		print_game(hand[jog_atual],tri,seq);
 		printf("\n>Turno do jogador %d\n\n",jog_atual+1);
-		printf("                     O que fazer:\n");     
-		printf("(0)Criar uma sequencia    |   (1)Criar uma trinca\n");
-		printf("(2)Cortar uma sequencia   |   (3)Cortar uma quadra\n");
-		printf("(4)Dividir uma sequencia  |   (5)Substituir numa trinca\n");
-		printf("(6)Deslocar sequencia     |   (7)Substituir um coringa\n");
-		printf("(8)Comprar carta          |   (9)Terminar turno\n");
+		printf("                     O que fazer:\n");
+
+		printf("(0)Comprar carta           |   (1)Terminar turno\n");
+		printf("(2)Criar uma sequencia     |   (3)Criar uma trinca\n");
+		printf("(4)Cortar uma sequencia    |   (5)Cortar uma quadra\n");
+		printf("(6)Dividir uma sequencia   |   (7)Adiconar em trinca\n");
+		printf("(8)Adicionar em sequencia  |   (9)Substituir um coringa\n");
 		
 		fgets(ask,3,stdin);
 		if(ask[0]=='0'){
+			if(points==0){
+				if(mode){
+					pos=0;
+				}else{
+					pos=(rand()%strlen(deck));
+					pos/=2;
+					pos*=2;
+				}
+				add_in_pos(hand[jog_atual],deck+pos,0);
+				remove_pos(deck,pos);
+				temp_seq=0;
+				temp_tri=0;
+				jog_atual++;
+				jog_atual%=num_jogs;
+			}else{
+				ask[0]='~';
+				while(ask[0]=='~'){
+					printf("voce ja fez jogadas esse turno\n");
+					printf("Para comprar cartas suas jogadas serao canceladas\n");
+					printf("Deseja continua?\n");
+					printf("(1)Sim   (0)Nao\n");
+					fgets(ask,3,stdin);
+					if(ask[0]=='1'){
+						while(temp_seq>=0){
+							while(seq[num_seq-1][0]!='\0'){
+								add_in_pos(hand[jog_atual],seq[num_seq-1],0);
+								remove_pos(seq[num_seq-1],0);
+							}
+							temp_seq--;
+							num_seq--;
+						}
+						while(temp_tri>=0){
+							while(tri[num_tri-1][0]!='\0'){
+								add_in_pos(hand[jog_atual],tri[num_tri-1],0);
+								remove_pos(tri[num_tri-1],0);
+							}
+							temp_tri--;
+							num_tri--;
+						}
+						points=0;
+						jog_atual++;
+						jog_atual%=num_jogs;
+					}else if(ask[0]!='0'){
+						printf("###Comando Invalido###\n");
+					}
+				}
+			}
+		}else if(ask[0]=='1'&&(jogou[i]!=0||points>=30)){
+			jogou[i]=1;
+			temp_seq=0;
+			temp_tri=0;
+			points=0;
+			jog_atual++;
+			jog_atual%=num_jogs;
+		}else if(ask[0]=='1'&&jogou[i]==0&&points<30){
+			printf("\n\n\n\n\n\n#######################################################################\n");
+			printf("#Sao necessarios pelo menos 30 pontos para finalizar a primeira jogada#\n");
+			printf("#######################################################################\n");
+			printf("Voce possui %d pontos\n\n",points);
+		}else if(ask[0]=='2'){
 			counter=0;
 			while(1){
 				printf(">Sequencia:");
-				print_list(sequencias[num_seq]);
+				print_list(seq[num_seq]);
 				printf(">Sua mao: ");
 				print_list(hand[jog_atual]);
 				printf("\n                 O que fazer:\n");
@@ -185,7 +249,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 					i=1;
 					while(i){
 						printf(">Sequencia:");
-						print_list(sequencias[num_seq]);
+						print_list(seq[num_seq]);
 						printf(">Sua mao:");
 						print_list(hand[jog_atual]);
 						printf("\nDigite '0' para cancelar.\n");
@@ -194,16 +258,31 @@ void game(int mode,int num_jogs, char Root_deck[]){
 						if(card[0]=='0'){
 							i=0;
 						}else if(find_card(hand[jog_atual],card)!=-1){
-							if(counter==0||ant_ou_prox(sequencias[num_seq][1],card[1])==-1){
-								add_in_pos(sequencias[num_seq],card,0);
+							if(counter==0||dist(seq[num_seq][0],card[0])==-1||(dist(seq[num_seq][2],card[0])==-2&&seq[num_seq][0]=='*')){
+								add_in_pos(seq[num_seq],card,0);
 								remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
 								counter++;
 								i=0;
-							}else if(ant_ou_prox(sequencias[num_seq][2*counter-1],card[1])==1){
-								add_in_pos(sequencias[num_seq],card,2*counter);
+							}else if(dist(seq[num_seq][2*counter-2],card[0])==1||(dist(seq[num_seq][2*counter-4],card[0])==2&&seq[num_seq][2*counter-2]=='*')){
+								add_in_pos(seq[num_seq],card,2*counter);
 								remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
 								counter++;
 								i=0;
+							}else if(card[0]=='*'){
+								ask[0]='~';
+								while(ask[0]=='~'){
+									printf("Posicionar coringa no começo ou no fim?\n");
+									printf("(0)Inicio   (1)Fim\n");
+									fgets(ask,3,stdin);
+									if(ask[0]=='0'){
+										add_in_pos(seq[num_seq],card,0);
+									}else if(ask[0]=='1'){
+										add_in_pos(seq[num_seq],card,2*counter);
+									}else{
+										printf("###Comando Invalido###\n");
+									}
+								}
+								remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
 							}else{
 								printf("\n\n\n###Carta Invalida###\n");
 							}
@@ -215,12 +294,12 @@ void game(int mode,int num_jogs, char Root_deck[]){
 					i=1;
 					while(i){
 						printf(">Sequencia:\n");
-						print_list(sequencias[num_seq]);
+						print_list(seq[num_seq]);
 						printf("Que carta remover: ");
 						fgets(card,4,stdin);
-						j=find_card(sequencias[num_seq],card);
+						j=find_card(seq[num_seq],card);
 						if(j!=-1){
-							remove_pos(sequencias[num_seq],j);
+							remove_pos(seq[num_seq],j);
 							add_in_pos(hand[jog_atual],card,0);
 							i=0;
 						}else{
@@ -230,16 +309,17 @@ void game(int mode,int num_jogs, char Root_deck[]){
 					counter--;
 				}else if(ask[0]=='3'&&counter>=3){
 					for(i=0;i<counter;i++){
-						strncpy(card,sequencias[num_seq]+2*i,2);
-						points+=point_card(card);
+						strncpy(card,seq[num_seq]+2*i,2);
+						points+=point_card(card[0]);
 					}
 					printf("%d\n",points);
+					temp_seq++;
 					num_seq++;
 					break;
 				}else if(ask[0]=='4'){
 					for(i=0;i<counter;i++){
-						add_in_pos(hand[jog_atual],sequencias[num_seq],0);
-						remove_pos(sequencias[num_seq],0);
+						add_in_pos(hand[jog_atual],seq[num_seq],0);
+						remove_pos(seq[num_seq],0);
 					}
 					break;
 				}else{
@@ -247,11 +327,11 @@ void game(int mode,int num_jogs, char Root_deck[]){
 				}
 
 			}
-		}else if(ask[0]=='1'){
+		}else if(ask[0]=='3'){
 			counter=0;
 			while(1){
 				printf(">Trinca:");
-				print_list(trincas[num_tri]);
+				print_list(tri[num_tri]);
 				printf(">Sua mao: ");
 				print_list(hand[jog_atual]);
 				printf("\n                 O que fazer:\n");
@@ -262,7 +342,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 					i=1;
 					while(i){
 						printf(">Trinca:");
-						print_list(trincas[num_tri]);
+						print_list(tri[num_tri]);
 						printf(">Sua mao:");
 						print_list(hand[jog_atual]);
 						printf("\nDigite '0' para cancelar.\n");
@@ -272,11 +352,13 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							i=0;
 						}else if(find_card(hand[jog_atual],card)!=-1){
 							for(j=0;j<2*counter;j+=2){
-								if(card[0]==trincas[num_tri][j]||card[1]!=trincas[num_tri][j+1]){
+								if(card[1]==tri[num_tri][j+1]||card[0]!=tri[num_tri][j]){
 									break;
 								}
 							}
-							if(j==2*counter){
+							if(card[0]=='*'){
+								i=0;
+							}else if(j==2*counter){
 								i=0;
 							}else{
 								printf("\n\n\n###Carta Invalida###\n");	
@@ -286,35 +368,37 @@ void game(int mode,int num_jogs, char Root_deck[]){
 						}
 					}
 					i=1;
-					while(i&&card[0]!='0'){
-						print_list(trincas[num_tri]);
+					if(counter==0){
+						add_in_pos(tri[num_tri],card,0);
+						i=0;
+					}
+					while(i){
+						print_list(tri[num_tri]);
 						printf("Posicionar %c%c no:\n",card[0],card[1]);
-						printf("(0)Início   (1)Fim\n");
+						printf("(0)Inicio   (1)Fim\n");
 						fgets(ask,3,stdin);
 						if(ask[0]=='0'){
-							add_in_pos(trincas[num_tri],card,0);
+							add_in_pos(tri[num_tri],card,0);
 							i=0;
 						}else if(ask[0]=='1'){
-							add_in_pos(trincas[num_tri],card,2*counter);
+							add_in_pos(tri[num_tri],card,2*counter);
 							i=0;
 						}else{
 							printf("###Comando Invalido###\n");
 						}
 					}
-					if(card[0]!='0'){
-						remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
-						counter++;
-					}
+					remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
+					counter++;
 				}else if(ask[0]=='2'&&counter>0){
 					i=1;
 					while(i){
 						printf(">Trinca:\n");
-						print_list(trincas[num_tri]);
+						print_list(tri[num_tri]);
 						printf("Que carta remover: ");
 						fgets(card,4,stdin);
-						j=find_card(trincas[num_tri],card);
+						j=find_card(tri[num_tri],card);
 						if(j!=-1){
-							remove_pos(trincas[num_tri],j);
+							remove_pos(tri[num_tri],j);
 							add_in_pos(hand[jog_atual],card,0);
 							i=0;
 						}else{
@@ -324,16 +408,17 @@ void game(int mode,int num_jogs, char Root_deck[]){
 					counter--;
 				}else if(ask[0]=='3'&&counter>=3){
 					for(i=0;i<counter;i++){
-						strncpy(card,trincas[num_tri]+2*i,2);
-						points+=point_card(card);
+						strncpy(card,tri[num_tri]+2*i,2);
+						points+=point_card(card[0]);
 					}
 					printf("%d\n",points);
+					temp_tri++;
 					num_tri++;
 					break;
 				}else if(ask[0]=='4'){
 					for(i=0;i<counter;i++){
-						add_in_pos(hand[jog_atual],trincas[num_tri],0);
-						remove_pos(trincas[num_tri],0);
+						add_in_pos(hand[jog_atual],tri[num_tri],0);
+						remove_pos(tri[num_tri],0);
 					}
 					break;
 				}else{
@@ -341,36 +426,81 @@ void game(int mode,int num_jogs, char Root_deck[]){
 				}
 
 			}
-		}else if(ask[0]=='2'){
-
-		}else if(ask[0]=='3'){
-
 		}else if(ask[0]=='4'){
 
 		}else if(ask[0]=='5'){
 
 		}else if(ask[0]=='6'){
+			i=1;
+			while(i){
+				printf(">Sequencias:\n");
+				for(i=0;i<num_seq;i++){
+					if(strlen(seq[i])>=12){
+						printf("|%d|-> ",i);
+						print_list(seq[i]);
+					}
+				}
+				i=1;
+				printf(">Sua mao:\n");
+				print_list(hand[jog_atual]);
+				printf("#Digite -1 para cancelar#\n");
+				printf("Que sequencia dividir: ");
+				scanf("%d",&j);
+				while(getchar()!='\n'){}
+				if(j>=0&&strlen(seq[j])>=12){
+					while(i){	
+						printf(">Sequencia\n");
+						print_list(seq[j]);
+						printf(">Sua mao:\n");
+						print_list(hand[jog_atual]);
+						printf("Em que carta vc vai partir a sequencia: \n");
+						fgets(card,3,stdin);
+						pos=find_card(seq[j],card);
+						if(pos>=2&&pos<=strlen(seq[j])-2&&(find_card(hand[jog_atual],card)!=-1||find_card(hand[jog_atual],"**")!=-1)){
+							ask[0]='~';
+							if(find_card(hand[jog_atual],card)!=-1&&find_card(hand[jog_atual],"**")!=-1){
+								while(ask[0]=='~'){
+									printf("Usar um coringa?\n");
+									printf("(1)Sim   (0)Nao\n");
+									fgets(ask,3,stdin);
+									if(ask[0]!='1'&&ask[0]!='0'){
+										printf("###Comando Invalido###\n");
+										ask[0]='~';
+									}
+								}
+							}
+							if((ask[0]=='~'&&find_card(hand[jog_atual],"**")!=-1)||ask[0]=='1'){
+								add_in_pos(seq[num_seq],"**",0);
+								remove_pos(hand[jog_atual],find_card(hand[jog_atual],"**"));
+								points+=point_card(card[0]);
+							}else if((ask[0]=='~'&&find_card(hand[jog_atual],card)!=-1)||ask[0]=='0'){
+								add_in_pos(seq[num_seq],card,0);
+								remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
+								points+=point_card(card[0]);
+							}
+							for(pos-=2;pos>=0;pos-=2){
+								add_in_pos(seq[num_seq],seq[j]+pos,0);
+								remove_pos(seq[j],pos);
+							}
+							num_seq++;
+							i=0;
+						}else{
+							printf("###Carta Invalida###\n");
+						}
+					}
+				}else if(j==-1){
+					i=0;
+				}else{
+					printf("###Sequencia Invalida###\n");
+				}
 
+			}
 		}else if(ask[0]=='7'){
+
+		}else if(ask[0]=='8'){
+
+		}else if(ask[0]=='9'){
 			
-		}else if(ask[0]=='8'&&points==0){
-			if(mode){
-				pos=0;
-			}else{
-				pos=(rand()%strlen(deck));
-				pos/=2;
-				pos*=2;
-			}
-			add_in_pos(deck+pos,hand[j],0);
-			remove_pos(deck,pos);
-		}else if(ask[0]=='9'&&(jogou[i]!=0||points>=30)){
-			points=0;
-			jogou[i]=1;
-			i++;
-			if(i==num_jogs){
-				turn++;
-				i%=num_jogs;
-			}
 		}else{
 			printf("###Comando Invalido###\n");
 		}
@@ -380,7 +510,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 int main(){
 	int mode,num_jogs,i;
 	char ask[4],deck[214];
-	strncpy(deck,"!1@1#1$1!2@2#2$2!3@3#3$3!4@4#4$4!5@5#5$5!6@6#6$6!7@7#7$7!8@8#8$8!9@9#9$9!A@A#A$A!B@B#B$B!C@C#C$C!D@D#D$D!1@1#1$1!2@2#2$2!3@3#3$3!4@4#4$4!5@5#5$5!6@6#6$6!7@7#7$7!8@8#8$8!9@9#9$9!A@A#A$A!B@B#B$B!C@C#C$C!D@D#D$D****\0",214);
+	strncpy(deck,"1!1@1#1$2!2@2#2$3!3@3#3$4!4@4#4$5!5@5#5$6!6@6#6$7!7@7#7$8!8@8#8$9!9@9#9$A!A@A#A$B!B@B#B$C!C@C#C$D!D@D#D$1!1@1#1$2!2@2#2$3!3@3#3$4!4@4#4$5!5@5#5$6!6@6#6$7!7@7#7$8!8@8#8$9!9@9#9$A!A@A#A$B!B@B#B$C!C@C#C$D!D@D#D$****\0",214);
 	srand(time(NULL));
 	ask[0]='0';
 	num_jogs=-1;
