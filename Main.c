@@ -289,14 +289,14 @@ void game(int mode,int num_jogs, char Root_deck[]){
 				}
 				return;
 			}
-		}else if(ask[0]=='1'&&(jogou[i]!=0||points>=30)){
-			jogou[i]=1;
+		}else if(ask[0]=='1'&&(jogou[jog_atual]!=0||points>=30)){
+			jogou[jog_atual]=1;
 			temp_seq=0;
 			temp_tri=0;
 			points=0;
 			jog_atual++;
 			jog_atual%=num_jogs;
-		}else if(ask[0]=='1'&&jogou[i]==0&&points<30){
+		}else if(ask[0]=='1'&&jogou[jog_atual]==0&&points<30){
 			printf("\n\n\n\n\n\n#######################################################################\n");
 			printf("#Sao necessarios pelo menos 30 pontos para finalizar a primeira jogada#\n");
 			printf("#######################################################################\n");
