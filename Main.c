@@ -419,19 +419,8 @@ void game(int mode,int num_jogs, char Root_deck[]){
 						fgets(card,4,stdin);
 						if(card[0]=='0'){
 							i=0;
-						}else if(find_card(hand[jog_atual],card)!=-1){
-							for(j=0;j<2*counter;j+=2){
-								if(card[1]==tri[num_tri][j+1]||card[0]!=tri[num_tri][j]){
-									break;
-								}
-							}
-							if(card[0]=='*'){
-								i=0;
-							}else if(j==2*counter){
-								i=0;
-							}else{
-								printf("\n\n\n###Carta Invalida###\n");	
-							}
+						}else if(find_card(hand[jog_atual],card)!=-1&&((card[0]=='*'&&card[1]=='*')||find_card(tri[num_tri],card)==-1)){
+							i=0;
 						}else{
 							printf("\n\n\n###Carta Invalida###\n");
 						}
@@ -586,6 +575,20 @@ void game(int mode,int num_jogs, char Root_deck[]){
 						fgets(card,3,stdin);
 						pos=find_card(seq[j],card);
 						if(card[0]=='*'&&card[1]=='*'&&pos>2&&pos<strlen(seq[j])-2){
+							if(find_card(tri[j]+pos+2,"**")!=-1){
+								ask[0]='~';
+								while(ask[0]=='~'){
+									printf("\n##Dois coringas encontrados##\n");
+									printf("Usar o primeiro ou segundo?\n");
+									printf("(0)Primeiro   (1)Segundo\n");
+									if(ask[0]=='1'){
+										pos+=find_card(tri[j]+pos+2,"**")+2;
+									}else if(ask[0]!='0'){
+										ask[0]='~';
+										printf("###Comando Invalido###\n");
+									}
+								}
+							}
 							card[1]=seq[j][1];
 							sub_coringa(card,seq[j][pos-2],seq[j][pos+2]);
 						}
@@ -652,7 +655,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 				while(getchar()!='\n'){}
 				if(pos<0){
 					i=0;
-				}else if(pos<num_tri&&strlen(tri[pos])==6){
+				}else if(pos<num_tri&&strlen(tri[pos])==6&&find_card(hand[jog_atual],"**")==-1){
 					char naipe[5]="!@#$\0";
 					card[0]=tri[pos][0];
 					for(i=0;i!=5;i++){
@@ -691,6 +694,24 @@ void game(int mode,int num_jogs, char Root_deck[]){
 						i=0;
 					}else{
 						printf("\n\n\n###Voce nao possui uma carta para essa trinca###\n");	
+					}
+				}else if(pos<num_tri&&strlen(tri[pos])==6&&find_card(hand[jog_atual],"**")!=-1){
+					i=1;
+					while(i){
+						printf("Que carta adicionar: ");
+						fgets(card,4,stdin);
+						j=find_card(hand[jog_atual],card);
+						if(j!=-1){
+							if(card[0]=='*'||find_card(tri[pos],card)==-1){
+								add_in_pos(tri[pos],card,0);
+								remove_pos(hand[jog_atual],j);
+								i=0;
+							}else{
+								printf("\n###Carta Invalida###\n");
+							}
+						}else{
+							printf("\n###Carta Invalida###\n");
+						}
 					}
 				}else{
 					printf("\n\n\n###Trinca Invalida###\n");
@@ -814,6 +835,20 @@ void game(int mode,int num_jogs, char Root_deck[]){
 						i=0;
 					}else if(j<num_tri&&find_card(tri[j],"**")!=-1){
 						pos=find_card(tri[j],"**");
+						if(find_card(tri[j]+pos+2,"**")!=-1){
+							ask[0]='~';
+							while(ask[0]=='~'){
+								printf("\n##Dois coringas encontrados##\n");
+								printf("Usar o primeiro ou segundo?\n");
+								printf("(0)Primeiro   (1)Segundo\n");
+								if(ask[0]=='1'){
+									pos+=find_card(tri[j]+pos+2,"**")+2;
+								}else if(ask[0]!='0'){
+									ask[0]='~';
+									printf("###Comando Invalido###\n");
+								}
+							}
+						}
 						sub_coringa(card,tri[j][pos-2],tri[j][pos+2]);
 						if((find_card(hand[jog_atual],card))!=-1){
 							remove_pos(tri[j],pos);
@@ -840,15 +875,29 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							print_list(seq[i]);
 						}
 					}
-					i=1;
-					printf("\n#Digite um numero negativo para cancelar#\n");
-					printf("Em qual sequencia adicionar: ");
-					scanf("%d",&j);
-					while(getchar()!='\n'){}
-					if(j<0){
-						i=0;
-					}else if(j<num_seq&&find_card(seq[j],"**")!=-1){
-						pos=find_card(seq[j],"**");
+				}
+				i=1;
+				printf("\n#Digite um numero negativo para cancelar#\n");
+				printf("Em qual sequencia adicionar: ");
+				scanf("%d",&j);
+				while(getchar()!='\n'){}
+				if(j<0){
+					i=0;
+				}else if(j<num_seq&&find_card(seq[j],"**")!=-1){
+					pos=find_card(seq[j],"**");
+					if(find_card(tri[j]+pos+2,"**")!=-1){
+						ask[0]='~';
+						while(ask[0]=='~'){
+							printf("\n##Dois coringas encontrados##\n");
+							printf("Usar o primeiro ou segundo?\n");
+							printf("(0)Primeiro   (1)Segundo\n");
+							if(ask[0]=='1'){
+								pos+=find_card(tri[j]+pos+2,"**")+2;
+							}else if(ask[0]!='0'){
+								ask[0]='~';
+								printf("###Comando Invalido###\n");
+							}
+						}
 						sub_coringa(card,seq[j][pos-2],seq[j][pos+2]);
 						if((find_card(hand[jog_atual],card))!=-1){
 							remove_pos(seq[j],pos);
@@ -859,9 +908,9 @@ void game(int mode,int num_jogs, char Root_deck[]){
 						}else{
 							printf("###Sequencia Invalida###\n");
 						}
-					}else{
-						printf("###Sequencia Invalida###\n");
 					}
+				}else{
+					printf("###Sequencia Invalida###\n");
 				}
 			}else{
 				printf("###Comando Invalido###");
