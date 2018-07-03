@@ -715,7 +715,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							i=0;
 						}else if(find_card(hand[jog_atual],card)!=-1){
 							j=dist(seq[pos],card[0]);
-							if(cardcounter==0||j==-1){
+							if(j==-1){
 								add_in_pos(seq[pos],card,0);
 								remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
 								counter++;
