@@ -33,13 +33,13 @@ int dist(char comp[],char card){
 		return 1;
 	}else if(comp[last]=='*'&&(card==comp[last-2]+2||(comp[last-2]=='8'&&card=='A')||(comp[last-2]=='9'&&card=='B'))){
 		return 1;
-	}else if(comp[last]=='*'&&comp[last-2]=='*'&&(card==comp[last-4]+4||(comp[last-4]=='7'&&card=='A')||(comp[last-4]=='8'&&card=='B')||(comp[last-4]=='9'&&card=='D'))){
+	}else if(comp[last]=='*'&&comp[last-2]=='*'&&(card==comp[last-3]+4||(comp[last-4]=='7'&&card=='A')||(comp[last-4]=='8'&&card=='B')||(comp[last-4]=='9'&&card=='D'))){
 		return 1;
 	}else if(card==comp[0]-1||(comp[0]=='A'&&card=='9')){
 		return -1;
 	}else if(comp[0]=='*'&&(card==comp[2]-2||(comp[0]=='A'&&card=='8')||(comp[2]=='B'&&card=='9'))){
 		return -1;
-	}else if(comp[0]=='*'&&comp[2]=='*'&&(card==comp[4]-4||(comp[4]=='A'&&card=='7')||(comp[4]=='B'&&card=='8')||(comp[4]=='D'&&card=='9'))){
+	}else if(comp[0]=='*'&&comp[2]=='*'&&(card==comp[4]-3||(comp[4]=='A'&&card=='7')||(comp[4]=='B'&&card=='8')||(comp[4]=='D'&&card=='9'))){
 		return -1;
 	}else{
 		return 0;
@@ -753,7 +753,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							i=0;
 						}else if(find_card(hand[jog_atual],card)!=-1){
 							j=dist(seq[pos],card[0]);
-							if(counter==0||j==-1){
+							if(cardcounter==0||j==-1){
 								add_in_pos(seq[pos],card,0);
 								remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
 								counter++;
