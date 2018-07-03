@@ -201,7 +201,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 	while(1){
 		if(hand[jog_atual][0]=='\0'){
 			printf("\n\n\n#Mao Vazia#\n");
-			printf("\nJogador %d venceu",jog_atual+1);
+			printf("\nJogador %d venceu\n\n",jog_atual+1);
 			return;
 		}
 		ord(hand[jog_atual]);
@@ -499,7 +499,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 						i=0;
 					}else if(ask[0]=='0'){
 						points-=point_card(seq[j][strlen(seq[j])-2]);
-						add_in_pos(hand[jog_atual],seq[strlen(seq[j])-2],0);
+						add_in_pos(hand[jog_atual],seq[j]+strlen(seq[j])-2,0);
 						remove_pos(seq[j],strlen(seq[j])-2);
 						i=0;
 					}else{
