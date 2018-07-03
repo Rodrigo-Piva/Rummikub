@@ -594,14 +594,14 @@ void game(int mode,int num_jogs, char Root_deck[]){
 						fgets(card,3,stdin);
 						pos=find_card(seq[j],card);
 						if(card[0]=='*'&&card[1]=='*'&&pos>2&&pos<strlen(seq[j])-2){
-							if(find_card(tri[j]+pos+2,"**")!=-1){
+							if(find_card(seq[j]+pos+2,"**")!=-1){
 								ask[0]='~';
 								while(ask[0]=='~'){
 									printf("\n##Dois coringas encontrados##\n");
 									printf("Usar o primeiro ou segundo?\n");
 									printf("(0)Primeiro   (1)Segundo\n");
 									if(ask[0]=='1'){
-										pos+=find_card(tri[j]+pos+2,"**")+2;
+										pos+=find_card(seq[j]+pos+2,"**")+2;
 									}else if(ask[0]!='0'){
 										ask[0]='~';
 										printf("###Comando Invalido###\n");
