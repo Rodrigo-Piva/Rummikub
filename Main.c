@@ -425,6 +425,8 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							i=0;
 						}else if(counter==0&&card[0]=='*'){
 							printf("\n\n\n###Nao Inicie Com Coringa###\n");
+						}else if(counter==0){
+							i=0;
 						}else if(find_card(hand[jog_atual],card)!=-1&&((card[0]=='*'&&card[1]=='*')||(find_card(tri[num_tri],card)==-1&&card[0]==tri[num_tri][strlen(tri[num_tri])-2]))){
 							i=0;
 						}else{
