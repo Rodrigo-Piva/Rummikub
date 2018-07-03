@@ -244,7 +244,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 					printf("(1)Sim   (0)Nao\n");
 					fgets(ask,3,stdin);
 					if(ask[0]=='1'){
-						while(temp_seq>=0){
+						while(temp_seq>0){
 							while(seq[num_seq-1][0]!='\0'){
 								add_in_pos(hand[jog_atual],seq[num_seq-1],0);
 								remove_pos(seq[num_seq-1],0);
@@ -252,7 +252,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							temp_seq--;
 							num_seq--;
 						}
-						while(temp_tri>=0){
+						while(temp_tri>0){
 							while(tri[num_tri-1][0]!='\0'){
 								add_in_pos(hand[jog_atual],tri[num_tri-1],0);
 								remove_pos(tri[num_tri-1],0);
@@ -260,6 +260,17 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							temp_tri--;
 							num_tri--;
 						}
+						if(mode){
+							pos=0;
+						}else{
+							pos=(rand()%strlen(deck));
+							pos/=2;
+							pos*=2;
+						}
+						add_in_pos(hand[jog_atual],deck+pos,0);
+						remove_pos(deck,pos);
+						temp_seq=0;
+						temp_tri=0;
 						points=0;
 						jog_atual++;
 						jog_atual%=num_jogs;
