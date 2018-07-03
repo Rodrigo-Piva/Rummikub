@@ -593,7 +593,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 						printf("\nEm que carta vc vai partir a sequencia: \n");
 						fgets(card,3,stdin);
 						pos=find_card(seq[j],card);
-						if(card[0]=='*'&&card[1]=='*'&&pos>2&&pos<strlen(seq[j])-2){
+						if(card[0]=='*'&&card[1]=='*'&&pos>=2&&pos<=strlen(seq[j])-4){
 							if(find_card(seq[j]+pos+2,"**")!=-1){
 								ask[0]='~';
 								while(ask[0]=='~'){
@@ -611,10 +611,10 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							}
 							card[1]=seq[j][1];
 							sub_coringa(card,seq[j][pos-2],seq[j][pos+2]);
+						}else if(card[0]=='*'&&card[1]=='*'&&pos==0){
+							pos+=find_card(seq[j]+pos+2,"**")+2;
 						}
-						if(card[0]=='*'&&card[1]=='*'&&find_card(seq[j]+pos+2,"**")>2&&find_card(seq[j]+pos+2,"**")<strlen(seq[j])-2){
 
-						}
 						if(pos>2&&pos<strlen(seq[j])-2){
 							for(;pos>=0;pos-=2){
 								add_in_pos(seq[num_seq],seq[j]+pos,0);
