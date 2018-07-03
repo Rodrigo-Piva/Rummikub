@@ -661,54 +661,14 @@ void game(int mode,int num_jogs, char Root_deck[]){
 				while(getchar()!='\n'){}
 				if(pos<0){
 					i=0;
-				}else if(pos<num_tri&&strlen(tri[pos])==6&&find_card(hand[jog_atual],"**")==-1){
-					char naipe[5]="!@#$\0";
-					card[0]=tri[pos][0];
-					for(i=0;i!=5;i++){
-						card[1]=naipe[i];
-						if(find_card(tri[pos],card)==-1){
-							break;
-						}
-					}
-					i=find_card(hand[jog_atual],card);
-					j=find_card(hand[jog_atual],"**");
-					if(i!=-1&&j!=-1){
-						ask[0]='~';
-						while(ask[0]=='~'){
-							printf("Que carta usar:\n");
-							printf("(1)%c%c   (0)**\n",card[0],card[1]);
-							fgets(ask,3,stdin);
-							if(ask[0]=='1'){
-								add_in_pos(tri[pos],card,0);
-								remove_pos(hand[jog_atual],i);
-							}else if(ask[0]=='0'){
-								add_in_pos(tri[pos],"**",0);
-								remove_pos(hand[jog_atual],j);
-							}else{
-								printf("###Comando Invalido###");
-								ask[0]='~';
-							}
-							i=0;
-						}
-					}else if(i!=-1){
-						add_in_pos(tri[pos],card,0);
-						remove_pos(hand[jog_atual],i);
-						i=0;
-					}else if(j!=-1){
-						add_in_pos(tri[pos],"**",0);
-						remove_pos(hand[jog_atual],j);
-						i=0;
-					}else{
-						printf("\n\n\n###Voce nao possui uma carta para essa trinca###\n");	
-					}
-				}else if(pos<num_tri&&strlen(tri[pos])==6&&find_card(hand[jog_atual],"**")!=-1){
+				}else if(pos<num_tri&&strlen(tri[pos])==6){
 					i=1;
 					while(i){
 						printf("Que carta adicionar: ");
 						fgets(card,4,stdin);
 						j=find_card(hand[jog_atual],card);
 						if(j!=-1){
-							if(card[0]=='*'||find_card(tri[pos],card)==-1){
+							if(card[0]=='*'||(find_card(tri[pos],card)==-1&&card[0]==tri[pos][strlen(tri[pos])-2])){
 								add_in_pos(tri[pos],card,0);
 								remove_pos(hand[jog_atual],j);
 								i=0;
