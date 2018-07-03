@@ -600,6 +600,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 									printf("\n##Dois coringas encontrados##\n");
 									printf("Usar o primeiro ou segundo?\n");
 									printf("(0)Primeiro   (1)Segundo\n");
+									fgets(ask,3,stdin);
 									if(ask[0]=='1'){
 										pos+=find_card(seq[j]+pos+2,"**")+2;
 									}else if(ask[0]!='0'){
@@ -610,6 +611,9 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							}
 							card[1]=seq[j][1];
 							sub_coringa(card,seq[j][pos-2],seq[j][pos+2]);
+						}
+						if(card[0]=='*'&&card[1]=='*'&&find_card(seq[j]+pos+2,"**")>2&&find_card(seq[j]+pos+2,"**")<strlen(seq[j])-2){
+
 						}
 						if(pos>2&&pos<strlen(seq[j])-2){
 							for(;pos>=0;pos-=2){
