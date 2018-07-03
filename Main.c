@@ -33,7 +33,7 @@ int dist(char comp[],char card){
 		return 1;
 	}else if(comp[last]=='*'&&(card==comp[last-2]+2||(comp[last-2]=='8'&&card=='A')||(comp[last-2]=='9'&&card=='B'))){
 		return 1;
-	}else if(comp[last]=='*'&&comp[last-2]=='*'&&(card==comp[last-3]+4||(comp[last-4]=='7'&&card=='A')||(comp[last-4]=='8'&&card=='B')||(comp[last-4]=='9'&&card=='D'))){
+	}else if(comp[last]=='*'&&comp[last-2]=='*'&&(card==comp[last-4]+3||(comp[last-4]=='7'&&card=='A')||(comp[last-4]=='8'&&card=='B')||(comp[last-4]=='9'&&card=='D'))){
 		return 1;
 	}else if(card==comp[0]-1||(comp[0]=='A'&&card=='9')){
 		return -1;
@@ -731,12 +731,10 @@ void game(int mode,int num_jogs, char Root_deck[]){
 							if(j==-1){
 								add_in_pos(seq[pos],card,0);
 								remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
-								counter++;
 								i=0;
 							}else if(j==1){
-								add_in_pos(seq[pos],card,2*counter);
+								add_in_pos(seq[pos],card,strlen(seq[pos]));
 								remove_pos(hand[jog_atual],find_card(hand[jog_atual],card));
-								counter++;
 								i=0;
 							}else if(card[0]=='*'){
 								ask[0]='~';
@@ -747,7 +745,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 									if(ask[0]=='0'){
 										add_in_pos(seq[pos],card,0);
 									}else if(ask[0]=='1'){
-										add_in_pos(seq[pos],card,2*counter);
+										add_in_pos(seq[pos],card,strlen(seq[j]));
 									}else{
 										printf("###Comando Invalido###\n");
 									}
