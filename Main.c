@@ -4,17 +4,6 @@
 #include <stdlib.h>
 
 
-void sub_coringa(char card[],char back,char front){
-	if((back>='1'&&back<='8')||(back>='A'&&back<='C')){
-		card[0]=back+1;
-	}else if(back==9){
-		card[0]='A';
-	}else if((front>='2'&&front<='9')||(front>='B'&&front<='D')){
-		card[0]=front-1;
-	}else if(front=='A'){
-		card[0]='9';
-	}
-}
 
 int point_card(char card){
 	if(card=='*'){
@@ -102,6 +91,19 @@ int find_card(char deck[],char card[]){
 		}
 	}
 	return -1;
+}
+
+
+void sub_coringa(char card[],char back,char front){
+	if((back>='1'&&back<='8')||(back>='A'&&back<='C')){
+		card[0]=back+1;
+	}else if(back==9){
+		card[0]='A';
+	}else if((front>='2'&&front<='9')||(front>='B'&&front<='D')){
+		card[0]=front-1;
+	}else if(front=='A'){
+		card[0]='9';
+	}
 }
 
 void print_list(char list[]){
@@ -901,6 +903,7 @@ void game(int mode,int num_jogs, char Root_deck[]){
 		}
 	}
 }
+
 
 int main(){
 	int mode,num_jogs,i;
